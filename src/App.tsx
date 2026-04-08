@@ -508,7 +508,7 @@ export default function App() {
             <VaultKeyLogo className="w-10 h-10" />
             <div>
               <h1 className="text-xl font-bold tracking-tight leading-none text-glow">VaultKey</h1>
-              <span className="text-[10px] text-primary uppercase tracking-[0.3em] font-medium">CLI_SIMULATION_ACTIVE</span>
+              <span className="text-[10px] text-primary uppercase tracking-[0.3em] font-medium">SECURE_CLOUD_VAULT</span>
             </div>
           </div>
           

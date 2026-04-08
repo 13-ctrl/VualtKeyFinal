@@ -1,5 +1,5 @@
 {
-  "name": "VaultKey - CLI Simulation",
-  "description": "A high-security password manager simulation with a terminal-inspired interface and local encryption.",
+  "name": "VaultKey",
+  "description": "A high-security, zero-knowledge password manager with AES-256 encryption.",
   "requestFramePermissions": []
 }
