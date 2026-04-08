@@ -1,0 +1,39 @@
+{
+  "entities": {
+    "Vault": {
+      "title": "Vault",
+      "description": "Encrypted vault data for a user",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "The UID of the user who owns this vault" },
+        "salt": { "type": "string", "description": "Base64 encoded salt for key derivation" },
+        "verifyCiphertext": { "type": "string", "description": "Base64 encoded verification ciphertext" },
+        "verifyIv": { "type": "string", "description": "Base64 encoded verification IV" },
+        "updatedAt": { "type": "number", "description": "Timestamp of last update" }
+      },
+      "required": ["userId", "salt", "verifyCiphertext", "verifyIv"]
+    },
+    "Credential": {
+      "title": "Credential",
+      "description": "An individual encrypted credential",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "The UID of the user who owns this credential" },
+        "ciphertext": { "type": "string", "description": "Base64 encoded encrypted credential data" },
+        "iv": { "type": "string", "description": "Base64 encoded IV" },
+        "createdAt": { "type": "number", "description": "Timestamp of creation" }
+      },
+      "required": ["userId", "ciphertext", "iv", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/vaults/{userId}": {
+      "schema": "Vault",
+      "description": "User vault configuration"
+    },
+    "/credentials/{credentialId}": {
+      "schema": "Credential",
+      "description": "Encrypted credentials collection"
+    }
+  }
+}

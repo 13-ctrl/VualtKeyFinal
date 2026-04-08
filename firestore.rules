@@ -1,0 +1,68 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: vaults
+    // Document ID: userId
+    // Fields:
+    //   - userId: string (required) - The UID of the owner
+    //   - salt: string (required) - Base64 salt
+    //   - verifyCiphertext: string (required) - Base64 verify ciphertext
+    //   - verifyIv: string (required) - Base64 verify IV
+    //   - updatedAt: number (optional) - Timestamp
+    //
+    // Collection: credentials
+    // Document ID: auto-generated
+    // Fields:
+    //   - userId: string (required) - The UID of the owner
+    //   - ciphertext: string (required) - Base64 encrypted data
+    //   - iv: string (required) - Base64 IV
+    //   - createdAt: number (required) - Timestamp
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isValidVault(data) {
+      return data.keys().hasAll(['userId', 'salt', 'verifyCiphertext', 'verifyIv']) &&
+             data.userId == request.auth.uid &&
+             data.salt is string && data.salt.size() < 100 &&
+             data.verifyCiphertext is string && data.verifyCiphertext.size() < 200 &&
+             data.verifyIv is string && data.verifyIv.size() < 100;
+    }
+
+    function isValidCredential(data) {
+      return data.keys().hasAll(['userId', 'ciphertext', 'iv', 'createdAt']) &&
+             data.userId == request.auth.uid &&
+             data.ciphertext is string && data.ciphertext.size() < 5000 &&
+             data.iv is string && data.iv.size() < 100 &&
+             data.createdAt is number;
+    }
+
+    match /vaults/{userId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidVault(request.resource.data);
+      allow update: if isOwner(userId) && isValidVault(request.resource.data);
+      allow delete: if isOwner(userId);
+    }
+
+    match /credentials/{credentialId} {
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated() && isValidCredential(request.resource.data);
+      allow update: if isAuthenticated() && resource.data.userId == request.auth.uid && isValidCredential(request.resource.data);
+      allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+  }
+}
